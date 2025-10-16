@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Sales Page</h2>
+<form method="POST">
+  <select name="product_id" required>
+    <option value="">Select Product</option>
+    {% for p in products %}
+      <option value="{{ p.id }}">{{ p.name }} - ₱{{ p.price }} (Stock: {{ p.quantity }})</option>
+    {% endfor %}
+  </select>
+  <input type="number" name="quantity" placeholder="Quantity" min="1" required>
+  <button type="submit">Process Sale</button>
+</form>
+{% endblock %}

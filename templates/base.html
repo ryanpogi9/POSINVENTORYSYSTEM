@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>POS Inventory System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2>POS Inventory</h2>
+    </div>
+    <div class="nav-right">
+      {% if session.get('role') == 'Admin' %}
+        <a href="{{ url_for('dashboard') }}">Approvals</a>
+        <a href="{{ url_for('inventory') }}">Inventory</a>
+      {% elif session.get('role') == 'Cashier' %}
+        <a href="{{ url_for('sales') }}">Sales</a>
+      {% endif %}
+      {% if session.get('username') %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Admin Dashboard - User Approvals</h2>
+<table>
+  <tr>
+    <th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Action</th>
+  </tr>
+  {% for user in users %}
+  <tr>
+    <td>{{ user.id }}</td>
+    <td>{{ user.username }}</td>
+    <td>{{ user.role }}</td>
+    <td>{{ user.status }}</td>
+    <td>
+      {% if user.status == 'Pending' %}
+      <a href="{{ url_for('approve_user', user_id=user.id) }}" class="btn">Approve</a>
+      <a href="{{ url_for('reject_user', user_id=user.id) }}" class="btn danger">Reject</a>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,69 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #fafafa;
+  color: #333;
+  margin: 0;
+}
+.navbar {
+  background: #007bff;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+.navbar a {
+  color: white;
+  margin-left: 1rem;
+  text-decoration: none;
+}
+.container {
+  padding: 2rem;
+}
+.form-container {
+  background: white;
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+button, .btn {
+  background: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn.danger {
+  background: #dc3545;
+}
+.alert {
+  margin-bottom: 1rem;
+  padding: 0.7rem;
+  border-radius: 5px;
+}
+.alert.success { background: #d4edda; color: #155724; }
+.alert.error { background: #f8d7da; color: #721c24; }
+.alert.info { background: #d1ecf1; color: #0c5460; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: center;
+}
+th {
+  background: #007bff;
+  color: white;
+}
