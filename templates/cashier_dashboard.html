@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Cashier Dashboard - POS Inventory{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h1>💰 Cashier Dashboard</h1>
+  <p>Welcome, {{ session.username }} — Process sales and track your transactions.</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card stat-sales">
+    <div class="stat-icon">💵</div>
+    <div class="stat-info">
+      <h3>₱{{ "{:,.2f}".format(my_total) }}</h3>
+      <p>Your Total Sales</p>
+    </div>
+  </div>
+
+  <div class="stat-card stat-transactions">
+    <div class="stat-icon">📊</div>
+    <div class="stat-info">
+      <h3>{{ my_sales|length }}</h3>
+      <p>Recent Transactions</p>
+    </div>
+  </div>
+
+  <div class="stat-card stat-products">
+    <div class="stat-icon">📦</div>
+    <div class="stat-info">
+      <h3>{{ products|length }}</h3>
+      <p>Available Products</p>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <h2>🛒 Quick Sale</h2>
+  </div>
+  
+  <form method="POST" action="{{ url_for('sales') }}" class="product-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="product_id">Product</label>
+        <select name="product_id" id="product_id" required>
+          <option value="">Select Product</option>
+          {% for p in products %}
+            <option value="{{ p.id }}">{{ p.name }} — ₱{{ "{:,.2f}".format(p.price) }} (Stock: {{ p.quantity }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" name="quantity" id="quantity" min="1" value="1" required>
+      </div>
+
+      <div class="form-group" style="align-self:end;">
+        <button type="submit" class="btn btn-success btn-block">Process Sale</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <h2>📋 Your Recent Sales</h2>
+    <button onclick="location.reload()" class="btn btn-primary btn-sm">
+      🔄 Refresh
+    </button>
+  </div>
+
+  {% if my_sales %}
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in my_sales %}
+        <tr>
+          <td>#{{ sale.id }}</td>
+          <td class="product-name">{{ sale.product_name }}</td>
+          <td class="text-center">{{ sale.quantity_sold }}</td>
+          <td>₱{{ "{:,.2f}".format(sale.unit_price) }}</td>
+          <td class="total-amount">₱{{ "{:,.2f}".format(sale.total_amount) }}</td>
+          <td class="timestamp">{{ sale.date.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="4"><strong>Your Total</strong></td>
+          <td colspan="2"><strong>₱{{ "{:,.2f}".format(my_total) }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  {% else %}
+    <p class="no-data">No sales recorded yet. Start by making your first sale!</p>
+  {% endif %}
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <h2>📦 Available Products</h2>
+  </div>
+  
+  {% if products %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+      {% for p in products %}
+      <div class="product-card" style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div style="text-align: center; font-size: 32px; margin-bottom: 8px;">📦</div>
+        <h4 style="margin-bottom: 8px; color: #1f2937;">{{ p.name }}</h4>
+        <p class="price" style="font-size: 18px; margin-bottom: 4px;">₱{{ "{:,.2f}".format(p.price) }}</p>
+        <p style="color: #6b7280; font-size: 14px;">
+          Stock: <span class="{% if p.quantity < 10 %}status-low{% else %}status-good{% endif %}" style="font-weight: 600;">{{ p.quantity }}</span>
+        </p>
+        {% if p.category %}
+        <p style="color: #9ca3af; font-size: 12px; margin-top: 4px;">{{ p.category }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="no-data">No products available. Contact your administrator to add inventory.</p>
+  {% endif %}
+</div>
+{% endblock %}
