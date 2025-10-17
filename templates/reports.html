@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Reports - POS Inventory{% endblock %}
+
+{% block content %}
+<h2>📊 Reports & Insights</h2>
+
+<div class="info-card">
+  <h3>Overview</h3>
+  <div class="info-grid">
+    <div class="info-item">
+      <strong>Revenue</strong>
+      <p>₱{{ "{:,.2f}".format(overall_revenue) }}</p>
+    </div>
+    <div class="info-item">
+      <strong>Cost</strong>
+      <p>₱{{ "{:,.2f}".format(overall_cost) }}</p>
+    </div>
+    <div class="info-item">
+      <strong>Profit</strong>
+      <p>₱{{ "{:,.2f}".format(overall_profit) }}</p>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <h3>Product Sales & Profitability</h3>
+  {% if product_sales %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th><th>Sold</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in product_sales %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td class="text-center">{{ p.total_sold }}</td>
+            <td>₱{{ "{:,.2f}".format(p.revenue) }}</td>
+            <td>₱{{ "{:,.2f}".format(p.cost) }}</td>
+            <td class="price">₱{{ "{:,.2f}".format(p.profit) }}</td>
+            <td>
+              {% if p.margin is not none %}
+                {{ "{:.2f}".format(p.margin) }}%
+              {% else %}
+                N/A
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="no-data">No sales data yet.</p>
+  {% endif %}
+</div>
+
+<div class="content-card">
+  <h3>Cashier Performance</h3>
+  {% if cashier_performance %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead><tr><th>Cashier</th><th>Transactions</th><th>Revenue</th><th>Profit</th></tr></thead>
+        <tbody>
+          {% for c in cashier_performance %}
+          <tr>
+            <td class="username">{{ c.sold_by }}</td>
+            <td class="text-center">{{ c.transactions }}</td>
+            <td>₱{{ "{:,.2f}".format(c.revenue) }}</td>
+            <td>₱{{ "{:,.2f}".format(c.profit) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="no-data">No cashier activity yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

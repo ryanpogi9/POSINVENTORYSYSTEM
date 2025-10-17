@@ -2,37 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>POS Inventory System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}POS Inventory System{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  {% if session.get('username') %}
   <nav class="navbar">
     <div class="nav-left">
-      <h2>POS Inventory</h2>
+      <h2>🏪 POS Inventory</h2>
+      <div class="user-info">
+        <span class="user-badge">{{ session.username }} ({{ session.role }})</span>
+        <span id="currentDateTime" class="datetime-badge"></span>
+      </div>
     </div>
-    <div class="nav-right">
+    <div class="nav-right" role="navigation" aria-label="Main navigation">
+      <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+
       {% if session.get('role') == 'Admin' %}
-        <a href="{{ url_for('dashboard') }}">Approvals</a>
-        <a href="{{ url_for('inventory') }}">Inventory</a>
+        <a href="{{ url_for('users') }}">👥 Users</a>
+        <a href="{{ url_for('inventory') }}">📦 Inventory</a>
+        <a href="{{ url_for('sales_history') }}">📊 Sales History</a>
+        <a href="{{ url_for('reports') }}">📈 Reports</a>
       {% elif session.get('role') == 'Cashier' %}
-        <a href="{{ url_for('sales') }}">Sales</a>
+        <a href="{{ url_for('sales') }}">💰 Make Sale</a>
       {% endif %}
-      {% if session.get('username') %}
-        <a href="{{ url_for('logout') }}">Logout</a>
-      {% endif %}
+
+      <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
     </div>
   </nav>
+  {% endif %}
 
-  <div class="container">
+  <main class="container">
     {% with messages = get_flashed_messages(with_categories=True) %}
       {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert {{ category }}">{{ message }}</div>
-        {% endfor %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span class="alert-icon">
+                {% if category == 'success' %}✅{% elif category == 'error' %}❌{% elif category == 'info' %}ℹ️{% else %}⚠️{% endif %}
+              </span>
+              <span>{{ message }}</span>
+              <button class="close-alert" onclick="this.parentElement.remove()">×</button>
+            </div>
+          {% endfor %}
+        </div>
       {% endif %}
     {% endwith %}
 
     {% block content %}{% endblock %}
-  </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 POS Inventory System. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      document.getElementById('currentDateTime').textContent =
+        now.toLocaleString('en-US', options).replace(',', '');
+    }
+
+    // Update immediately and then every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  </script>
 </body>
 </html>

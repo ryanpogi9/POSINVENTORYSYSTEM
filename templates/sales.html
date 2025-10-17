@@ -1,14 +1,52 @@
 {% extends 'base.html' %}
+{% block title %}Sales - POS Inventory{% endblock %}
+
 {% block content %}
-<h2>Sales Page</h2>
-<form method="POST">
-  <select name="product_id" required>
-    <option value="">Select Product</option>
-    {% for p in products %}
-      <option value="{{ p.id }}">{{ p.name }} - ₱{{ p.price }} (Stock: {{ p.quantity }})</option>
-    {% endfor %}
-  </select>
-  <input type="number" name="quantity" placeholder="Quantity" min="1" required>
-  <button type="submit">Process Sale</button>
-</form>
+<div class="dashboard-header">
+  <h1>💰 POS / Make a Sale</h1>
+  <p>Select product and quantity to process a sale. Stock will decrement automatically.</p>
+</div>
+
+<div class="sales-container">
+  <div class="sale-form-card">
+    <h3>Process Sale</h3>
+    <form method="POST" class="product-form">
+      <label for="product_id">Product</label>
+      <select name="product_id" id="product_id" required>
+        <option value="">Select Product</option>
+        {% for p in products %}
+          <option value="{{ p.id }}">{{ p.name }} — ₱{{ "{:,.2f}".format(p.price) }} (Stock: {{ p.quantity }})</option>
+        {% endfor %}
+      </select>
+
+      <label for="quantity">Quantity</label>
+      <input type="number" name="quantity" id="quantity" min="1" value="1" required>
+
+      <div style="margin-top:12px;">
+        <button type="submit" class="btn btn-primary btn-large">Process Sale</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="products-list-card">
+    <h3>Available Products</h3>
+    {% if products %}
+      <div class="products-grid" style="grid-template-columns: repeat(auto-fill,minmax(180px,1fr));">
+        {% for p in products %}
+        <div class="product-card" role="article" aria-label="{{ p.name }}">
+          <div class="product-icon">📦</div>
+          <div class="product-info">
+            <h4>{{ p.name }}</h4>
+            <p class="product-price">₱{{ "{:,.2f}".format(p.price) }}</p>
+            <p class="product-stock">Stock: {{ p.quantity }}</p>
+            <p class="product-stock">Cost: ₱{{ "{:,.2f}".format(p.cost) }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="no-data">No products available. Add inventory from the Inventory page.</p>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

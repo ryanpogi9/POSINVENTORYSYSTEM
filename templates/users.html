@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}User Management - POS Inventory{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h1>👥 User Management</h1>
+  <p>Create and manage user accounts (admin only).</p>
+</div>
+
+<div class="content-card">
+  <h3>Create New User</h3>
+  <form method="POST" action="{{ url_for('create_user') }}" class="form-row" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+    <div>
+      <label>Username</label>
+      <input type="text" name="username" placeholder="username" required>
+    </div>
+    <div>
+      <label>Password</label>
+      <input type="password" name="password" placeholder="password" required>
+    </div>
+    <div>
+      <label>Role</label>
+      <select name="role">
+        <option value="Cashier">Cashier</option>
+        <option value="Admin">Admin</option>
+      </select>
+    </div>
+    <div style="align-self:end;">
+      <button type="submit" class="btn btn-success btn-block">Create User</button>
+    </div>
+  </form>
+</div>
+
+<div class="recent-section">
+  <h2>All Users</h2>
+  <div class="table-responsive">
+    <table class="data-table" role="table" aria-label="All users">
+      <thead>
+        <tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            <span class="status-badge {% if user.status == 'Approved' %}status-approved{% elif user.status == 'Pending' %}status-pending{% else %}status-rejected{% endif %}">
+              {{ user.status }}
+            </span>
+          </td>
+          <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>
+            {% if user.status == 'Pending' %}
+              <a href="{{ url_for('approve_user', user_id=user.id) }}" class="btn">Approve</a>
+              <a href="{{ url_for('reject_user', user_id=user.id) }}" class="btn btn-danger">Reject</a>
+            {% endif %}
+            {% if user.id != session.get('user_id') %}
+              <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger">Delete</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

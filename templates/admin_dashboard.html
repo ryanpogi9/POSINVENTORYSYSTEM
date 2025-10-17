@@ -1,23 +1,133 @@
 {% extends 'base.html' %}
+{% block title %}Admin Dashboard - POS Inventory{% endblock %}
+
 {% block content %}
-<h2>Admin Dashboard - User Approvals</h2>
-<table>
-  <tr>
-    <th>ID</th><th>Username</th><th>Role</th><th>Status</th><th>Action</th>
-  </tr>
-  {% for user in users %}
-  <tr>
-    <td>{{ user.id }}</td>
-    <td>{{ user.username }}</td>
-    <td>{{ user.role }}</td>
-    <td>{{ user.status }}</td>
-    <td>
-      {% if user.status == 'Pending' %}
-      <a href="{{ url_for('approve_user', user_id=user.id) }}" class="btn">Approve</a>
-      <a href="{{ url_for('reject_user', user_id=user.id) }}" class="btn danger">Reject</a>
-      {% endif %}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="dashboard-header">
+  <h1>🛠️ Admin Dashboard</h1>
+  <p>Welcome, {{ session.username }} — manage users, inventory and view insights.</p>
+  <div class="last-update">Last updated: <span id="lastUpdate"></span></div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card stat-users">
+    <div class="stat-icon">👥</div>
+    <div class="stat-info">
+      <h3>{{ stats.total_users }}</h3>
+      <p>Total Users</p>
+    </div>
+  </div>
+
+  <div class="stat-card stat-products">
+    <div class="stat-icon">📦</div>
+    <div class="stat-info">
+      <h3>{{ stats.total_products }}</h3>
+      <p>Total Products</p>
+    </div>
+  </div>
+
+  <div class="stat-card stat-sales">
+    <div class="stat-icon">💵</div>
+    <div class="stat-info">
+      <h3>₱{{ "{:,.2f}".format(stats.total_sales) }}</h3>
+      <p>Total Sales</p>
+    </div>
+  </div>
+
+  <div class="stat-card stat-transactions">
+    <div class="stat-icon">⚠️</div>
+    <div class="stat-info">
+      <h3>{{ stats.low_stock }}</h3>
+      <p>Low Stock Items (&lt;10)</p>
+    </div>
+  </div>
+</div>
+
+<div class="recent-section">
+  <div class="section-header">
+    <h2>🕒 Recent Sales</h2>
+    <button onclick="refreshSales()" class="btn btn-primary btn-sm">
+      <span class="refresh-icon">🔄</span> Refresh
+    </button>
+  </div>
+
+  {% if recent_sales %}
+  <div class="table-responsive">
+    <table class="data-table" id="salesTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Sold by</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in recent_sales %}
+        <tr>
+          <td>#{{ s.id }}</td>
+          <td>{{ s.product_name }}</td>
+          <td class="text-center">{{ s.quantity_sold }}</td>
+          <td class="price">₱{{ "{:,.2f}".format(s.total_amount) }}</td>
+          <td class="username">{{ s.sold_by }}</td>
+          <td class="timestamp" data-time="{{ s.date.isoformat() }}">
+            {{ s.date.strftime('%Y-%m-%d %H:%M') }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="no-data">No recent sales found.</p>
+  {% endif %}
+</div>
+
+<script>
+// Update relative times
+function updateRelativeTimes() {
+  const timestamps = document.querySelectorAll('.timestamp');
+  timestamps.forEach(ts => {
+    const date = new Date(ts.dataset.time);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // seconds
+
+    let relativeTime;
+    if (diff < 60) {
+      relativeTime = 'Just now';
+    } else if (diff < 3600) {
+      const mins = Math.floor(diff / 60);
+      relativeTime = `${mins} minute${mins > 1 ? 's' : ''} ago`;
+    } else if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      relativeTime = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      relativeTime = ts.textContent; // Keep original format
+    }
+
+    ts.textContent = relativeTime;
+  });
+}
+
+// Update last refresh time
+function updateLastRefresh() {
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent =
+    now.toLocaleTimeString('en-US', { hour12: false });
+}
+
+// Initial updates
+updateRelativeTimes();
+updateLastRefresh();
+
+// Update every minute
+setInterval(updateRelativeTimes, 60000);
+setInterval(updateLastRefresh, 1000);
+
+// Refresh sales data
+function refreshSales() {
+  location.reload();
+}
+</script>
 {% endblock %}

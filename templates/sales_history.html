@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Sales History - POS Inventory{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h1>📜 Sales History</h1>
+  <p>Track all sales transactions and revenue</p>
+</div>
+
+<div class="info-card">
+  <div class="info-grid">
+    <div class="info-item">
+      <strong>Total Revenue</strong>
+      <p class="price">₱{{ "{:,.2f}".format(total_revenue) }}</p>
+    </div>
+    <div class="info-item">
+      <strong>Total Cost</strong>
+      <p>₱{{ "{:,.2f}".format(total_cost) }}</p>
+    </div>
+    <div class="info-item">
+      <strong>Net Profit</strong>
+      <p class="profit">₱{{ "{:,.2f}".format(total_profit) }}</p>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="card-header">
+    <h2>Sales Records</h2>
+    <div class="card-actions">
+      <input type="text" id="searchInput" placeholder="Search sales..." class="search-input">
+      <select id="dateFilter" class="filter-select">
+        <option value="all">All Time</option>
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+  </div>
+
+  {% if sales %}
+  <div class="table-responsive">
+    <table class="data-table" id="salesTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Unit Cost</th>
+          <th>Total</th>
+          <th>Profit</th>
+          <th>Sold By</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales %}
+        <tr>
+          <td>#{{ sale.id }}</td>
+          <td class="product-name">{{ sale.product_name }}</td>
+          <td class="text-center">{{ sale.quantity_sold }}</td>
+          <td>₱{{ "{:,.2f}".format(sale.unit_price) }}</td>
+          <td>₱{{ "{:,.2f}".format(sale.unit_cost) }}</td>
+          <td class="total-amount">₱{{ "{:,.2f}".format(sale.total_amount) }}</td>
+          <td class="profit">₱{{ "{:,.2f}".format(sale.total_amount - (sale.unit_cost * sale.quantity_sold)) }}</td>
+          <td class="username">{{ sale.sold_by or '—' }}</td>
+          <td class="timestamp">{{ sale.date.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="5"><strong>Totals</strong></td>
+          <td>₱{{ "{:,.2f}".format(total_revenue) }}</td>
+          <td>₱{{ "{:,.2f}".format(total_profit) }}</td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  {% else %}
+    <p class="no-data">No sales recorded yet.</p>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const dateFilter = document.getElementById('dateFilter');
+    const table = document.getElementById('salesTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const dateOption = dateFilter.value;
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        for (let row of rows) {
+            const productName = row.getElementsByClassName('product-name')[0].textContent.toLowerCase();
+            const seller = row.getElementsByClassName('username')[0].textContent.toLowerCase();
+            const date = new Date(row.getElementsByClassName('timestamp')[0].textContent);
+
+            let showByDate = true;
+            if (dateOption === 'today') {
+                showByDate = date >= today;
+            } else if (dateOption === 'week') {
+                const weekAgo = new Date(today);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                showByDate = date >= weekAgo;
+            } else if (dateOption === 'month') {
+                const monthAgo = new Date(today);
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                showByDate = date >= monthAgo;
+            }
+
+            const showBySearch = productName.includes(searchTerm) ||
+                               seller.includes(searchTerm);
+
+            row.style.display = (showBySearch && showByDate) ? '' : 'none';
+        }
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    dateFilter.addEventListener('change', filterTable);
+});
+</script>
+{% endblock %}

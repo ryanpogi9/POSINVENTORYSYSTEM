@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Error - POS Inventory{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h1>⚠️ {{ code or 'Error' }}</h1>
+  <p>{{ error or "An unexpected error occurred." }}</p>
+</div>
+
+<div class="content-card">
+  <p>If you think this is a problem with the application, check the server logs or contact the administrator.</p>
+  <p><a href="{{ url_for('dashboard') }}" class="btn btn-primary">Return to Dashboard</a></p>
+</div>
+{% endblock %}
